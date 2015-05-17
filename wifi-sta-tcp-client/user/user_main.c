@@ -320,12 +320,12 @@ static void ICACHE_FLASH_ATTR wifi_check_ip(void *arg)
 			wifi_get_ip_info(STATION_IF, &ipConfig);
 			if(ipConfig.ip.addr != 0) {
 				connState = WIFI_CONNECTED;
-				#ifdef PLATFORM_DEBUG
+				// #ifdef PLATFORM_DEBUG
 				ets_uart_printf("WiFi connected\r\n");
-				ets_uart_printf("Start TCP connecting...\r\n");
+				/*ets_uart_printf("Start TCP connecting...\r\n");
 				#endif
 				connState = TCP_CONNECTING;
-				senddata();
+				senddata();*/
 				return;
 			}
 			break;
@@ -354,7 +354,7 @@ static void ICACHE_FLASH_ATTR wifi_check_ip(void *arg)
 			#endif
 	}
 	os_timer_setfn(&WiFiLinker, (os_timer_func_t *)wifi_check_ip, NULL);
-	os_timer_arm(&WiFiLinker, 1000, 0);
+	//os_timer_arm(&WiFiLinker, 1000, 0);
 }
 
 void setup_wifi_ap_mode(void)
@@ -428,15 +428,23 @@ void ICACHE_FLASH_ATTR user_init()
 	ets_uart_printf("ESP8266 platform starting...\r\n");
 	#endif
     
-	//if(wifi_get_opmode() != USE_WIFI_MODE)
+	//changed comment out
+	if(wifi_get_opmode() != USE_WIFI_MODE)
+	//end changed
 	{
 		#ifdef PLATFORM_DEBUG
 		console_printf("ESP8266 is %s mode, restarting in %s mode...\r\n", WiFiMode[wifi_get_opmode()], WiFiMode[USE_WIFI_MODE]);
 		#endif
 		if(USE_WIFI_MODE & SOFTAP_MODE)
+		{
 			setup_wifi_ap_mode();
+			ets_uart_printf("started in ap mode...\r\n");
+		}
 		if(USE_WIFI_MODE & STATION_MODE)
+		{
 			setup_wifi_st_mode();
+			ets_uart_printf("started in station mode...\r\n");
+		}
 	}
 	if(USE_WIFI_MODE & SOFTAP_MODE)
 		wifi_get_macaddr(SOFTAP_IF, macaddr);
@@ -470,9 +478,9 @@ void ICACHE_FLASH_ATTR user_init()
 	#endif
 
 	// Wait for Wi-Fi connection and start TCP connection
-	os_timer_disarm(&WiFiLinker);
+	//os_timer_disarm(&WiFiLinker);
 	os_timer_setfn(&WiFiLinker, (os_timer_func_t *)wifi_check_ip, NULL);
-	os_timer_arm(&WiFiLinker, 1000, 0);
+	os_timer_arm(&WiFiLinker, 10000, 0);
 
 	#ifdef PLATFORM_DEBUG
 	ets_uart_printf("ESP8266 platform started!\r\n");
